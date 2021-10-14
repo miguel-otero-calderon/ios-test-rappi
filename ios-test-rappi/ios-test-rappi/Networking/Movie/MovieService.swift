@@ -25,8 +25,6 @@ class MovieService: MovieServiceProtocol {
             endPoint = .getMoviesUpComing
         }
         
-        print(endPoint.toURL())
-        
         AF.request(endPoint.toURL(), method: endPoint.method)
             .response {[weak self] response in
                 switch response.result {

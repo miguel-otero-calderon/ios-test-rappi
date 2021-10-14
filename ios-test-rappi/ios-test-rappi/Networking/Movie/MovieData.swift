@@ -6,7 +6,7 @@
 //
 
 import Foundation
-// MARK: - MovieData
+
 struct MovieData: Codable {
     let adult: Bool
     let backdropPath: String
@@ -18,7 +18,6 @@ struct MovieData: Codable {
     let video: Bool
     let voteAverage: Double
     let voteCount: Int
-    var movieType: MovieType?
 
     enum CodingKeys: String, CodingKey {
         case adult
