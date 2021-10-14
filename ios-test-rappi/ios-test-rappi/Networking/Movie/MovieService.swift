@@ -9,14 +9,25 @@ import Foundation
 import Alamofire
 
 protocol MovieServiceProtocol{
-    func getMoviesPopular(request: MovieRequest?, completion: @escaping (MoviePopularResponse?, Error?) -> Void)
+    func getMovies(request: MovieRequest, completion: @escaping (MovieResponse?, Error?) -> Void)
 }
+
 class MovieService: MovieServiceProtocol {
     
-    func getMoviesPopular(request: MovieRequest?, completion: @escaping (MoviePopularResponse?, Error?) -> Void) {
-        AF.request(
-            MovieEndPoint.getMoviesPopular.toURL(),
-            method: MovieEndPoint.getMoviesPopular.metohd)
+    func getMovies(request: MovieRequest, completion: @escaping (MovieResponse?, Error?) -> Void) {
+        var endPoint: MovieEndPoint
+        switch request.movieType {
+        case .popular:
+            endPoint = .getMoviesPopular
+        case .topRated:
+            endPoint = .getMoviesTopReated
+        case .upComing:
+            endPoint = .getMoviesUpComing
+        }
+        
+        print(endPoint.toURL())
+        
+        AF.request(endPoint.toURL(), method: endPoint.method)
             .response {[weak self] response in
                 switch response.result {
                 case .success(let data):
@@ -24,7 +35,7 @@ class MovieService: MovieServiceProtocol {
                         return
                     }
                     do {
-                        let response = try JSONDecoder().decode(MoviePopularResponse.self, from: data)
+                        let response = try JSONDecoder().decode(MovieResponse.self, from: data)
                         completion(response, nil)
                     } catch {
                         completion(nil,error)

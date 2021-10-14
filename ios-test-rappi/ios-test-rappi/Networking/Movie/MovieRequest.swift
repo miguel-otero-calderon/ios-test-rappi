@@ -7,5 +7,5 @@
 
 import Foundation
 struct MovieRequest {
-    
+    let movieType: MovieType
 }
