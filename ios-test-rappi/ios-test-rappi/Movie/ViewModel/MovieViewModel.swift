@@ -13,7 +13,6 @@ protocol MovieViewModelProtocol: AnyObject {
     
     var delegate: MovieViewModelDelegate? {get set}
     var service: MovieServiceProtocol { get }
-    var movies: [Movie] { get }
 }
 
 protocol MovieViewModelDelegate: AnyObject {
@@ -22,7 +21,6 @@ protocol MovieViewModelDelegate: AnyObject {
 
 class MovieViewModel: MovieViewModelProtocol {
     
-    var movies: [Movie]
     var service: MovieServiceProtocol
     var delegate: MovieViewModelDelegate?
     
@@ -31,14 +29,11 @@ class MovieViewModel: MovieViewModelProtocol {
 
     init(service: MovieServiceProtocol) {
         self.service = service
-        self.movies = []
     }
     
     func getMovies(movieType: MovieType) {
         let request = MovieRequest(movieType: movieType)
         self.service.getMovies(request: request) {[weak self] response, error in
-            
-            self?.movies = []
             
             if let error = error {
                 self?.delegate?.getMovies(movies: nil, error: error)
@@ -46,6 +41,7 @@ class MovieViewModel: MovieViewModelProtocol {
             }
                         
             if let movieResponse = response {
+                var movies = [Movie]()
                 for movieData in movieResponse.results {
                     
                     var movie = Movie(
@@ -82,9 +78,9 @@ class MovieViewModel: MovieViewModelProtocol {
                         }
                     }
                     
-                    self?.movies.append(movie)
-                    self?.delegate?.getMovies(movies: self?.movies, error: nil)
+                    movies.append(movie)
                 }
+                self?.delegate?.getMovies(movies: movies, error: nil)
             }
         }
     }
