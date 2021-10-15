@@ -15,13 +15,17 @@ class MovieView: UIViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var viemModel: MovieViewModelProtocol = MovieViewModel(service: MovieService())
-    var movies: [Movie] = []
+    var moviesPopular : [Movie] = []
+    var moviesTopRated: [Movie] = []
+    var moviesUpComing: [Movie] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.viemModel.delegate = self
         self.viemModel.getMovies(movieType: .popular)
+        self.viemModel.getMovies(movieType: .topRated)
+        self.viemModel.getMovies(movieType: .upComing)
         self.tableView.isHidden = true
         self.searchView.isHidden = true
         self.activityIndicator.startAnimating()
@@ -45,7 +49,27 @@ class MovieView: UIViewController {
 }
 extension MovieView: MovieViewModelDelegate {
     func getMovies(movies: [Movie]?, error: Error?) {
-        self.movies = movies!
+        
+        guard let movies = movies else {
+            return
+        }
+        
+        guard movies.count > 0 else {
+            return
+        }
+        
+        if movies.contains(where: { Movie in Movie.movieType == .popular }) {
+            self.moviesPopular = movies
+        }
+        
+        if movies.contains(where: { Movie in Movie.movieType == .topRated }) {
+            self.moviesTopRated = movies
+        }
+        
+        if movies.contains(where: { Movie in Movie.movieType == .upComing }) {
+            self.moviesUpComing = movies
+        }
+                
         DispatchQueue.main.async {
             self.tableView.isHidden = false
             self.searchView.isHidden = false
@@ -83,14 +107,18 @@ extension MovieView: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieTableCell", for: indexPath) as? MovieTableCell
         
         if indexPath.section == 0 {
-            cell?.movies = self.movies.filter({ movie in movie.movieType == .popular })
-        } else if indexPath.section == 1 {
-            cell?.movies = self.movies.filter({ movie in movie.movieType == .topRated })
-        } else if indexPath.section == 2 {
-            cell?.movies = self.movies.filter({ movie in movie.movieType == .upComing })
+            cell?.movies = self.moviesPopular
         }
         
-        if let movies = cell?.movies {
+        if indexPath.section == 1 {
+            cell?.movies = self.moviesTopRated
+        }
+        
+        if indexPath.section == 2 {
+            cell?.movies = self.moviesUpComing
+        }
+        
+        if let movies = cell?.movies, movies.count > 0 {
             cell!.configure(movies: movies)
         }
         

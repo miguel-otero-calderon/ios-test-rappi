@@ -16,7 +16,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mPb-2K-aqX" userLabel="View Search">
-                                <rect key="frame" x="16" y="88" width="382" height="80"/>
+                                <rect key="frame" x="16" y="88" width="382" height="60"/>
                                 <subviews>
                                     <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="QWn-Y1-aWr">
                                         <rect key="frame" x="5" y="5" width="372" height="51"/>
@@ -34,11 +34,11 @@
                                     <constraint firstItem="QWn-Y1-aWr" firstAttribute="leading" secondItem="mPb-2K-aqX" secondAttribute="leading" constant="5" id="nlF-YP-hLQ"/>
                                     <constraint firstAttribute="trailing" secondItem="QWn-Y1-aWr" secondAttribute="trailing" constant="5" id="oJ2-z3-FPs"/>
                                     <constraint firstItem="QWn-Y1-aWr" firstAttribute="top" secondItem="mPb-2K-aqX" secondAttribute="top" constant="5" id="tw3-uU-hgA"/>
-                                    <constraint firstAttribute="height" constant="80" id="zYh-Rq-cq7"/>
+                                    <constraint firstAttribute="height" constant="60" id="zYh-Rq-cq7"/>
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="rg4-pG-1L8">
-                                <rect key="frame" x="16" y="173" width="382" height="669"/>
+                                <rect key="frame" x="16" y="153" width="382" height="689"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
                             <activityIndicatorView opaque="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Gks-lj-XlK">
