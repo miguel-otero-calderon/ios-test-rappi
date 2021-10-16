@@ -74,6 +74,5 @@ extension MovieTableCell: UICollectionViewDelegate {
         let movie = self.movies[indexPath.row]
         
         self.delegate?.isSelected(movie: movie)
-        print(movie.title)
     }
 }

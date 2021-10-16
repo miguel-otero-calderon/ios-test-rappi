@@ -185,7 +185,12 @@ extension MovieView: UITableViewDataSource {
 
 extension MovieView: MovieTableCellDelegate {
     func isSelected(movie: Movie) {
-        
+        DispatchQueue.main.async {
+            let movieDetaildView = self.storyboard?.instantiateViewController(withIdentifier: "MovieDetaildView") as! MovieDetaildView
+            movieDetaildView.movie = movie
+            movieDetaildView.title = movie.title
+            self.present(movieDetaildView, animated: true, completion: nil)
+        }
     }
 }
 
