@@ -5,6 +5,7 @@
 //  Created by Miguel on 14/10/21.
 //
 
+import Foundation
 import UIKit
 
 class MovieView: UIViewController {
@@ -46,6 +47,18 @@ class MovieView: UIViewController {
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
+    func getImages(movies:[Movie]) -> [Movie] {
+        var moviesWithImage: [Movie] = movies
+        for (index,movie) in movies.enumerated() {
+            if movie.backdropImage == nil {
+                moviesWithImage[index].backdropImage = self.viemModel.getCache(id: moviesWithImage[index].idBackdropPath)
+            }
+            if movie.posterImage == nil {
+                moviesWithImage[index].posterImage = self.viemModel.getCache(id: moviesWithImage[index].idPosterPath)
+            }
+        }
+        return moviesWithImage
+    }
 }
 extension MovieView: MovieViewModelDelegate {
     func getMovies(movies: [Movie]?, error: Error?) {
@@ -58,16 +71,22 @@ extension MovieView: MovieViewModelDelegate {
             return
         }
         
+        if movies.contains(where: { movie in movie.backdropImage == nil || movie.posterImage == nil }){
+            sleep(2)
+        }
+        
+        let moviesWithImage = getImages(movies: movies)
+        
         if movies.contains(where: { Movie in Movie.movieType == .popular }) {
-            self.moviesPopular = movies
+            self.moviesPopular = moviesWithImage
         }
         
         if movies.contains(where: { Movie in Movie.movieType == .topRated }) {
-            self.moviesTopRated = movies
+            self.moviesTopRated = moviesWithImage
         }
         
         if movies.contains(where: { Movie in Movie.movieType == .upComing }) {
-            self.moviesUpComing = movies
+            self.moviesUpComing = moviesWithImage
         }
                 
         DispatchQueue.main.async {
@@ -105,6 +124,10 @@ extension MovieView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieTableCell", for: indexPath) as? MovieTableCell
+        
+        self.moviesPopular = getImages(movies: self.moviesPopular)
+        self.moviesTopRated = getImages(movies: self.moviesTopRated)
+        self.moviesUpComing = getImages(movies: self.moviesUpComing)
         
         if indexPath.section == 0 {
             cell?.movies = self.moviesPopular

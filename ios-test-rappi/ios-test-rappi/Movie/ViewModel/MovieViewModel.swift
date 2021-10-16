@@ -10,6 +10,7 @@ import UIKit
 
 protocol MovieViewModelProtocol: AnyObject {
     func getMovies(movieType: MovieType)
+    func getCache(id:NSString) -> UIImage?
     
     var delegate: MovieViewModelDelegate? {get set}
     var service: MovieServiceProtocol { get }
@@ -24,8 +25,7 @@ class MovieViewModel: MovieViewModelProtocol {
     var service: MovieServiceProtocol
     var delegate: MovieViewModelDelegate?
     
-    static let cacheImages = NSCache<NSString, UIImage>()
-    private let urlImage = "https://image.tmdb.org/t/p/w500"
+    static let cache = NSCache<NSString, UIImage>()
 
     init(service: MovieServiceProtocol) {
         self.service = service
@@ -34,6 +34,8 @@ class MovieViewModel: MovieViewModelProtocol {
     func getMovies(movieType: MovieType) {
         let request = MovieRequest(movieType: movieType)
         self.service.getMovies(request: request) {[weak self] response, error in
+            
+            let urlImage = "https://image.tmdb.org/t/p/w500"
             
             if let error = error {
                 self?.delegate?.getMovies(movies: nil, error: error)
@@ -44,36 +46,36 @@ class MovieViewModel: MovieViewModelProtocol {
                 var movies = [Movie]()
                 for movieData in movieResponse.results {
                     
-                    var movie = Movie(
-                        movieData: movieData,
-                        movieType: request.movieType)
+                    var movie = Movie(movieData: movieData, movieType: request.movieType)
+                    movie.backdropPath = urlImage + movieData.backdropPath
+                    movie.posterPath = urlImage + movieData.posterPath
+                    movie.backdropImage = MovieViewModel.cache.object(forKey: movie.idBackdropPath)
+                    movie.posterImage = MovieViewModel.cache.object(forKey: movie.idPosterPath)
                     
-                    let id_backdrop_path = "\(movie.id)/backdrop_path" as NSString
-                    
-                    if let cache = MovieViewModel.cacheImages.object(forKey: id_backdrop_path) {
-                        movie.backdropPath = cache
-                        print("CACHE: \(id_backdrop_path)")
-                    } else {
-                        if let url = self?.getUrl(urlString: movieData.backdropPath) {
-                            if let image = self?.getImage(url: url) {
-                                movie.backdropPath = image
-                                MovieViewModel.cacheImages.setObject(image, forKey: id_backdrop_path)
-                                print("SERVICE: \(id_backdrop_path)")
+                    if movie.backdropImage == nil {
+                        DispatchQueue(label: "com.load.image1").async {
+                            if let url = URL(string: movie.backdropPath) {
+                                self?.downloadImage(url: url, completion: { image in
+                                    guard let image = image else {
+                                        return
+                                    }
+                                    MovieViewModel.cache.setObject(image, forKey: movie.idBackdropPath)
+                                    print(movie.idBackdropPath)
+                                })
                             }
                         }
                     }
                     
-                    let id_poster_path = "\(movie.id)/poster_path" as NSString
-                    
-                    if let cache = MovieViewModel.cacheImages.object(forKey: id_poster_path) {
-                        movie.posterPath = cache
-                        print("CACHE: \(id_poster_path)")
-                    } else {
-                        if let url = self?.getUrl(urlString: movieData.posterPath) {
-                            if let image = self?.getImage(url: url) {
-                                movie.posterPath = image
-                                MovieViewModel.cacheImages.setObject(image, forKey: id_poster_path)
-                                print("SERVICE: \(id_poster_path)")
+                    if movie.posterImage == nil {
+                        DispatchQueue(label: "com.load.image2").async {
+                            if let url = URL(string: movie.posterPath) {
+                                self?.downloadImage(url: url, completion: { image in
+                                    guard let image = image else {
+                                        return
+                                    }
+                                    MovieViewModel.cache.setObject(image, forKey: movie.idPosterPath)
+                                    print(movie.idPosterPath)
+                                })
                             }
                         }
                     }
@@ -85,15 +87,16 @@ class MovieViewModel: MovieViewModelProtocol {
         }
     }
     
-    func getUrl(urlString: String) -> URL? {
-        return URL(string: urlImage + urlString )
+    func downloadImage(url:URL, completion: @escaping (UIImage?) -> Void) {
+        if let data = try? Data(contentsOf: url),
+           let image = UIImage(data: data) {
+            completion(image)
+        } else {
+            completion(nil)
+        }
     }
     
-    func getImage(url:URL) -> UIImage? {
-        if let data = try? Data(contentsOf: url) {
-            return UIImage(data: data)
-        } else {
-            return nil
-        }
+    func getCache(id:NSString ) -> UIImage? {
+        return MovieViewModel.cache.object(forKey: id as NSString)
     }
 }

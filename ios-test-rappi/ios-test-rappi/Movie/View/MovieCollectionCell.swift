@@ -18,6 +18,6 @@ class MovieCollectionCell: UICollectionViewCell {
     }
 
     func configure(movie:Movie) {
-        imageView.image = movie.backdropPath
+        imageView.image = movie.backdropImage
     }
 }
