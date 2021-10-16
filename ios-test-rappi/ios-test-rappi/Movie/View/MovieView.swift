@@ -19,6 +19,10 @@ class MovieView: UIViewController {
     var moviesPopular : [Movie] = []
     var moviesTopRated: [Movie] = []
     var moviesUpComing: [Movie] = []
+    var moviesPopularFilter = [Movie]()
+    var moviesTopRatedFilter = [Movie]()
+    var moviesUpcomingFilter = [Movie]()
+    var isSearch = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +39,7 @@ class MovieView: UIViewController {
         self.tableView.register(UINib(nibName: "MovieTableCell", bundle: nil), forCellReuseIdentifier: "MovieTableCell")
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView()
+        self.searchBar.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -105,15 +110,28 @@ extension MovieView: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch section {
-        case 0:
-            return "Polular"
-        case 1:
-            return "Top Rated"
-        case 2:
-            return "Upcomming"
-        default:
-            return ""
+        if isSearch {
+            switch section {
+            case 0:
+                return "Polular \(self.moviesPopularFilter.count)"
+            case 1:
+                return "Top Rated \(self.moviesTopRatedFilter.count)"
+            case 2:
+                return "Up Comming \(self.moviesUpcomingFilter.count)"
+            default:
+                return ""
+            }
+        } else {
+            switch section {
+            case 0:
+                return "Polular \(self.moviesPopular.count)"
+            case 1:
+                return "Top Rated \(self.moviesTopRated.count)"
+            case 2:
+                return "Up Comming \(self.moviesUpComing.count)"
+            default:
+                return ""
+            }
         }
     }
     
@@ -129,19 +147,34 @@ extension MovieView: UITableViewDataSource {
         self.moviesTopRated = getImages(movies: self.moviesTopRated)
         self.moviesUpComing = getImages(movies: self.moviesUpComing)
         
-        if indexPath.section == 0 {
-            cell?.movies = self.moviesPopular
+        if isSearch {
+            if indexPath.section == 0 {
+                cell?.movies = self.moviesPopularFilter
+            }
+            
+            if indexPath.section == 1 {
+                cell?.movies = self.moviesTopRatedFilter
+            }
+            
+            if indexPath.section == 2 {
+                cell?.movies = self.moviesUpcomingFilter
+            }
+            
+        } else {
+            if indexPath.section == 0 {
+                cell?.movies = self.moviesPopular
+            }
+            
+            if indexPath.section == 1 {
+                cell?.movies = self.moviesTopRated
+            }
+            
+            if indexPath.section == 2 {
+                cell?.movies = self.moviesUpComing
+            }
         }
         
-        if indexPath.section == 1 {
-            cell?.movies = self.moviesTopRated
-        }
-        
-        if indexPath.section == 2 {
-            cell?.movies = self.moviesUpComing
-        }
-        
-        if let movies = cell?.movies, movies.count > 0 {
+        if let movies = cell?.movies {
             cell!.configure(movies: movies)
         }
         
@@ -152,5 +185,50 @@ extension MovieView: UITableViewDataSource {
 extension MovieView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
+    }
+}
+
+extension MovieView: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        self.searchBar.resignFirstResponder()
+        
+        guard let filter = searchBar.text else {
+            return
+        }
+        
+        moviesPopularFilter = self.moviesPopular.filter({ movie in
+            movie.title.contains(filter)
+        })
+        
+        moviesTopRatedFilter = self.moviesTopRated.filter({ movie in
+            movie.title.contains(filter)
+        })
+        
+        moviesUpcomingFilter = self.moviesUpComing.filter({ movie in
+            movie.title.contains(filter)
+        })
+        
+        isSearch = true
+        
+        DispatchQueue.main.async {
+            self.tableView.isHidden = false
+            self.searchView.isHidden = false
+            self.activityIndicator.stopAnimating()
+            self.tableView.reloadData()
+        }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" {
+            isSearch = false
+            
+            DispatchQueue.main.async {
+                self.tableView.isHidden = false
+                self.searchView.isHidden = false
+                self.activityIndicator.stopAnimating()
+                self.tableView.reloadData()
+            }
+        }
     }
 }
