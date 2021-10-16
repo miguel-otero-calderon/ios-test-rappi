@@ -176,9 +176,16 @@ extension MovieView: UITableViewDataSource {
         
         if let movies = cell?.movies {
             cell!.configure(movies: movies)
+            cell?.delegate = self
         }
         
         return cell!
+    }
+}
+
+extension MovieView: MovieTableCellDelegate {
+    func isSelected(movie: Movie) {
+        
     }
 }
 

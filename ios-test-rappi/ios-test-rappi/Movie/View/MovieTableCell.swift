@@ -7,11 +7,16 @@
 
 import UIKit
 
+protocol MovieTableCellDelegate {
+    func isSelected(movie:Movie)
+}
+
 class MovieTableCell: UITableViewCell {
     
     @IBOutlet weak var collectionView: UICollectionView!
     
     var movies:[Movie] = []
+    var delegate:MovieTableCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -19,6 +24,7 @@ class MovieTableCell: UITableViewCell {
         self.collectionView.dataSource = self
         self.collectionView.register(UINib(nibName: "MovieCollectionCell", bundle: nil),
                                      forCellWithReuseIdentifier: "MovieCollectionCell")
+        self.collectionView.delegate = self
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -58,6 +64,16 @@ extension MovieTableCell: UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 
-        return CGSize(width: 320, height: 140)
+        return CGSize(width: 200, height: 140)
+    }
+}
+
+extension MovieTableCell: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        let movie = self.movies[indexPath.row]
+        
+        self.delegate?.isSelected(movie: movie)
+        print(movie.title)
     }
 }

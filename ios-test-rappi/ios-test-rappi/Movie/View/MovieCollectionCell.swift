@@ -12,6 +12,7 @@ class MovieCollectionCell: UICollectionViewCell {
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
+    var movie:Movie?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -20,6 +21,7 @@ class MovieCollectionCell: UICollectionViewCell {
 
     func configure(movie:Movie) {
         imageView.image = movie.backdropImage
-        titleLabel.text = movie.title        
+        titleLabel.text = movie.title
+        self.movie = movie
     }
 }
